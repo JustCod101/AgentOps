@@ -3,7 +3,7 @@
 # ============================================================
 
 # ---------- Stage 1: Build ----------
-FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
@@ -17,13 +17,13 @@ RUN mvn package -DskipTests -B && \
     mv target/agentops-server-*.jar target/app.jar
 
 # ---------- Stage 2: Runtime ----------
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 
 LABEL maintainer="agentops-team"
 LABEL description="AgentOps — 多智能体协同 AIOps 排障专家系统"
 
 # 安全: 非 root 用户
-RUN addgroup -S app && adduser -S app -G app
+RUN groupadd -r app && useradd -r -g app app
 
 WORKDIR /app
 
