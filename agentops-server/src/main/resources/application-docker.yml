@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    primary:
+      url: ${DB_URL:jdbc:postgresql://postgres:5432/agentops}
+      username: admin
+      password: ${DB_PASSWORD}
+    monitor:
+      url: ${MONITOR_DB_URL:jdbc:postgresql://monitor-db:5432/monitor}
+      username: readonly_user
+      password: ${READONLY_PASSWORD}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: 6379
+      password: ${REDIS_PASSWORD:}
