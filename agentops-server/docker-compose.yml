@@ -1,0 +1,108 @@
+version: "3.9"
+
+services:
+  # ============================================================
+  # PostgreSQL 主库 — 存储诊断会话、Trace、审计、知识库
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentops-postgres
+    environment:
+      POSTGRES_DB: agentops
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-agentops123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d agentops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agentops-net
+
+  # ============================================================
+  # PostgreSQL 监控库 — 模拟生产环境监控数据（只读目标库）
+  # ============================================================
+  monitor-db:
+    image: postgres:16-alpine
+    container_name: agentops-monitor-db
+    environment:
+      POSTGRES_DB: monitor
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-agentops123}
+    ports:
+      - "5433:5432"
+    volumes:
+      - monitor-data:/var/lib/postgresql/data
+      - ../sql/monitor-schema.sql:/docker-entrypoint-initdb.d/01-monitor-schema.sql:ro
+      - ../sql/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql:ro
+      - ./init-monitor-readonly.sh:/docker-entrypoint-initdb.d/03-readonly-user.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d monitor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agentops-net
+
+  # ============================================================
+  # Redis — 缓存 & 会话存储
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: agentops-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agentops-net
+
+  # ============================================================
+  # AgentOps Server
+  # ============================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentops-server
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/agentops
+      DB_PASSWORD: ${DB_PASSWORD:-agentops123}
+      MONITOR_DB_URL: jdbc:postgresql://monitor-db:5432/monitor
+      READONLY_PASSWORD: ${READONLY_PASSWORD:-readonly123}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ""
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      JAVA_OPTS: "-Xms512m -Xmx1024m"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      monitor-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - agentops-net
+
+volumes:
+  postgres-data:
+  monitor-data:
+  redis-data:
+
+networks:
+  agentops-net:
+    driver: bridge
