@@ -1,5 +1,6 @@
 package com.agentops.agent;
 
+import com.agentops.agent.model.AgentResult;
 import org.springframework.stereotype.Service;
 
 /**
@@ -7,5 +8,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class LogAnalysisAgent {
-    // TODO: 实现日志分析逻辑
+
+    public AgentResult execute(String task, String sessionId, String originalQuery) {
+        // TODO: 实现日志分析逻辑
+        return AgentResult.failure("LOG_ANALYSIS", "LogAnalysisAgent 尚未实现");
+    }
 }
