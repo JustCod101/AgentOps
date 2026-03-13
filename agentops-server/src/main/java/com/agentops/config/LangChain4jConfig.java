@@ -22,7 +22,7 @@ public class LangChain4jConfig {
         return OpenAiChatModel.builder()
                 .apiKey(apiKey)
                 .baseUrl(baseUrl)
-                .modelName("gpt-4o")
+                .modelName("MiniMax-M2.5")
                 .temperature(0.1)
                 .maxTokens(2048)
                 .build();
@@ -33,7 +33,7 @@ public class LangChain4jConfig {
         return OpenAiChatModel.builder()
                 .apiKey(apiKey)
                 .baseUrl(baseUrl)
-                .modelName("gpt-4o-mini")
+                .modelName("MiniMax-M2.5")
                 .temperature(0.2)
                 .maxTokens(2048)
                 .build();

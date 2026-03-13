@@ -200,7 +200,7 @@ public class RouterAgent {
                 ROUTER_SYSTEM_PROMPT + "\n\n用户问题: " + userQuery);
 
         traceStore.recordAction(sessionId, AGENT_NAME, "llm_intent_classify",
-                Map.of("query", userQuery, "model", "gpt-4o"),
+                Map.of("query", userQuery, "model", "MiniMax-M2.5"),
                 llmResponse, true);
 
         return parseTaskPlan(llmResponse);

@@ -528,7 +528,7 @@ class RouterAgentTest {
 
             Map<String, Object> input = inputCaptor.getValue();
             assertEquals(USER_QUERY, input.get("query"));
-            assertEquals("gpt-4o", input.get("model"));
+            assertEquals("MiniMax-M2.5", input.get("model"));
         }
     }
 
