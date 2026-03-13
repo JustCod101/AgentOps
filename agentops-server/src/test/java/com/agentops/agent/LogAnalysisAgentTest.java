@@ -145,6 +145,8 @@ class LogAnalysisAgentTest {
                     .thenReturn(SqlExecutionResult.empty(5));
             when(logQueryTool.queryErrorTimeline(eq(10), eq("order-service")))
                     .thenReturn(SqlExecutionResult.empty(3));
+            when(logQueryTool.queryErrorDetails(eq("order-service"), eq(10), eq("ERROR")))
+                    .thenReturn(SqlExecutionResult.empty(0));
 
             // 反思建议重试
             when(reflectionEngine.reflect(anyString(), anyString(), anyString(), anyString(), anyString()))

@@ -47,8 +47,8 @@ public class LogQueryTool {
      */
     public SqlExecutionResult queryTopErrors(int minutesAgo, String serviceName, int limit) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT error_message, COUNT(*) AS error_count, ")
-           .append("error_level, MAX(created_at) AS latest_time, service_name ")
+        sql.append("SELECT message, COUNT(*) AS error_count, ")
+           .append("log_level, MAX(created_at) AS latest_time, service_name ")
            .append("FROM service_error_log ")
            .append("WHERE created_at >= NOW() - INTERVAL '").append(minutesAgo).append(" minutes' ");
 
@@ -56,7 +56,7 @@ public class LogQueryTool {
             sql.append("AND service_name = '").append(escapeSql(serviceName)).append("' ");
         }
 
-        sql.append("GROUP BY error_message, error_level, service_name ")
+        sql.append("GROUP BY message, log_level, service_name ")
            .append("ORDER BY error_count DESC ")
            .append("LIMIT ").append(Math.min(limit, MAX_ROWS));
 
@@ -75,7 +75,7 @@ public class LogQueryTool {
         sql.append("SELECT date_trunc('minute', created_at) AS time_bucket, ")
            .append("COUNT(*) AS error_count, ")
            .append("COUNT(DISTINCT service_name) AS error_services, ")
-           .append("SUM(CASE WHEN error_level = 'FATAL' THEN 1 ELSE 0 END) AS fatal_count ")
+           .append("SUM(CASE WHEN log_level = 'FATAL' THEN 1 ELSE 0 END) AS fatal_count ")
            .append("FROM service_error_log ")
            .append("WHERE created_at >= NOW() - INTERVAL '").append(minutesAgo).append(" minutes' ");
 
@@ -95,7 +95,7 @@ public class LogQueryTool {
      * @return 查询结果（完整日志记录）
      */
     public SqlExecutionResult queryByTraceId(String traceId) {
-        String sql = "SELECT service_name, error_level, error_message, request_path, "
+        String sql = "SELECT service_name, log_level, message, request_path, "
                 + "request_method, response_code, created_at "
                 + "FROM service_error_log "
                 + "WHERE trace_id = '" + escapeSql(traceId) + "' "
@@ -114,7 +114,7 @@ public class LogQueryTool {
      */
     public SqlExecutionResult queryErrorDetails(String serviceName, int minutesAgo, String errorLevel) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT service_name, error_level, error_message, ")
+        sql.append("SELECT service_name, log_level, message, ")
            .append("LEFT(stack_trace, 500) AS stack_trace_head, ")
            .append("request_path, response_code, trace_id, created_at ")
            .append("FROM service_error_log ")
@@ -122,7 +122,7 @@ public class LogQueryTool {
            .append("AND service_name = '").append(escapeSql(serviceName)).append("' ");
 
         if (errorLevel != null && !errorLevel.isBlank()) {
-            sql.append("AND error_level = '").append(escapeSql(errorLevel)).append("' ");
+            sql.append("AND log_level = '").append(escapeSql(errorLevel)).append("' ");
         }
 
         sql.append("ORDER BY created_at DESC LIMIT 50");

@@ -25,6 +25,7 @@ public class LangChain4jConfig {
                 .modelName("MiniMax-M2.5")
                 .temperature(0.1)
                 .maxTokens(2048)
+                .timeout(java.time.Duration.ofSeconds(180))
                 .build();
     }
 
@@ -36,6 +37,7 @@ public class LangChain4jConfig {
                 .modelName("MiniMax-M2.5")
                 .temperature(0.2)
                 .maxTokens(2048)
+                .timeout(java.time.Duration.ofSeconds(180))
                 .build();
     }
 }
