@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # 创建只读用户 — 供 AgentOps Agent 查询监控数据
 set -e
 

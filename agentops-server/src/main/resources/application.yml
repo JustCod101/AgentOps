@@ -36,8 +36,8 @@ spring:
 # ========== LangChain4j ==========
 langchain4j:
   open-ai:
-    api-key: ${OPENAI_API_KEY:}
-    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    api-key: ${OPENAI_API_KEY}
+    base-url: ${OPENAI_BASE_URL}
 
 # ========== Actuator ==========
 management:
