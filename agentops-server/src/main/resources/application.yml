@@ -33,21 +33,49 @@ spring:
       port: 6379
       password: ${REDIS_PASSWORD:}
 
+# ========== Security JWT ==========
+security:
+  jwt:
+    secret: ${JWT_SECRET:agentops-secret-key-change-in-production-must-be-at-least-256-bits-long}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
 # ========== LangChain4j ==========
 langchain4j:
   open-ai:
     api-key: ${OPENAI_API_KEY}
     base-url: ${OPENAI_BASE_URL}
 
-# ========== Actuator ==========
+# ========== Actuator + OpenTelemetry ==========
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,prometheus,metrics
   endpoint:
     health:
       show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+  metrics:
+    export:
+      otlp:
+        enabled: true
+
+otel:
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+  service:
+    name: ${spring.application.name}
+
+# ========== OpenAPI Documentation ==========
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
 
 logging:
   level:

@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  JAVA_VERSION: '17'
+  NODE_VERSION: '20'
+
+jobs:
+  backend-ci:
+    name: Backend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agentops-server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Run Maven tests
+        run: mvn clean test -B
+
+      - name: Run Maven verify
+        run: mvn verify -B -DskipTests=false
+
+      - name: Build with Maven
+        run: mvn package -DskipTests -B
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: backend-jar
+          path: agentops-server/target/*.jar
+          retention-days: 7
+
+  frontend-ci:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint || true
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: /api/v1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+
+  cli-ci:
+    name: CLI CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/install-uv@v3
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Type check
+        run: uv run ruff check src/
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner on backend
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'agentops-server/src'
+          format: 'sarif'
+          output: 'trivy-results-backend.sarif'
+        continue-on-error: true
+
+      - name: Run Trivy vulnerability scanner on frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'frontend/src'
+          format: 'sarif'
+          output: 'trivy-results-frontend.sarif'
+        continue-on-error: true
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results-backend.sarif'
+          category: backend
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results-frontend.sarif'
+          category: frontend

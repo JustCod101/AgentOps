@@ -1,0 +1,16 @@
+apiVersion: v2
+name: agentops
+description: A Helm chart for AgentOps AIOps Platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com
+    condition: postgresql.enabled
+  - name: redis
+    version: 17.x.x
+    repository: https://charts.bitnami.com
+    condition: redis.enabled

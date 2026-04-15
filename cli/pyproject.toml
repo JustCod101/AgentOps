@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentops-cli"
+version = "0.1.0"
+description = "Production-grade CLI for the AgentOps multi-agent AIOps platform"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "AgentOps" }
+]
+dependencies = [
+  "click>=8.1.7",
+  "rich>=13.7.1",
+  "httpx>=0.27.0",
+  "pydantic>=2.7.0",
+  "PyYAML>=6.0.1",
+  "python-dotenv>=1.0.1"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0"
+]
+
+[project.scripts]
+agentops = "agentops.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

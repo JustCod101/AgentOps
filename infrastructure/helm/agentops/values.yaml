@@ -1,0 +1,93 @@
+replicaCount: 2
+
+image:
+  repository: agentops/server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: agentops.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: agentops-tls
+      hosts:
+        - agentops.example.com
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: production
+  - name: JAVA_OPTS
+    value: "-Xms1g -Xmx2g -XX:+UseG1GC"
+
+secretEnv:
+  - name: OPENAI_API_KEY
+    secretKeyRef:
+      name: agentops-secrets
+      key: openai-api-key
+  - name: DB_PASSWORD
+    secretKeyRef:
+      name: agentops-secrets
+      key: db-password
+
+postgresql:
+  enabled: true
+  auth:
+    database: agentops
+    username: admin
+  primary:
+    persistence:
+      size: 10Gi
+  readReplicas:
+    replicaCount: 2
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+  master:
+    persistence:
+      size: 1Gi
+
+config:
+  jwt:
+    secret: "${JWT_SECRET}"
+    expirationMs: 3600000
+  rateLimit:
+    diagnosis:
+      requestsPerMinute: 10
+    knowledge:
+      requestsPerMinute: 100
+  circuitBreaker:
+    failureRateThreshold: 50
+    waitDurationInOpenStateSeconds: 30

@@ -1,35 +1,156 @@
-# Build
+# ============================================================
+# Build Artifacts
+# ============================================================
 target/
 !.mvn/wrapper/maven-wrapper.jar
+dist/
+build/
+out/
 
-# IDE
+# ============================================================
+# Frontend (Node/React/Vite)
+# ============================================================
+node_modules/
+.pnpm-store/
+pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+.estree/
+.vite/
+.turbo/
+
+# React/Vue build output
+*.jsx.js
+*.tsx.js
+
+# ============================================================
+# IDEs & Editors
+# ============================================================
 .idea/
 *.iml
 *.iws
 *.ipr
 .vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .settings/
 .project
 .classpath
 .factorypath
-
-# OS
+*.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Logs
-*.log
-logs/
-
-# Environment
-.env
-*.env.local
-
-# Maven
-dependency-reduced-pom.xml
-
+# ============================================================
+# Languages & Runtimes
+# ============================================================
 # Java
 *.class
 hs_err_pid*
+hs_err_*.log
+replay_pid*
+dependency-reduced-pom.xml
 
-.claude
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+.eggs/
+*.egg
+venv/
+ENV/
+.venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+*.tsbuildinfo
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+secrets/
+*.pem
+*.key
+credentials.json
+service-account.json
+
+# ============================================================
+# Docker & Containers
+# ============================================================
+docker-compose.override.yml
+.docker/
+.dockerignore
+
+# Named volumes (data persistence)
+postgres-data/
+monitor-data/
+redis-data/
+
+# ============================================================
+# Logs & Debugging
+# ============================================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lombok.config
+
+# ============================================================
+# Testing & Coverage
+# ============================================================
+jacoco/
+cobertura/
+coverage/
+.clover
+*.tmp
+
+# E2E test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ============================================================
+# Documentation builds
+# ============================================================
+docs/_build/
+site/
+
+# ============================================================
+# Misc
+# ============================================================
+*.bak
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.swc/
+.tmp/
+.cache/
+.parcel-cache/

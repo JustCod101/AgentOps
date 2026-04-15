@@ -6,13 +6,16 @@
 
 ```
 AgentOps/
-├── agentops-server/        # 后端服务 (SpringBoot)
-├── sql/                    # 数据库 Schema & 种子数据
-│   ├── schema.sql              # 主库 Schema (诊断会话/Trace/审计/知识库)
-│   ├── monitor-schema.sql      # 监控库 Schema (慢查询/连接/日志/指标)
+├── agentops-server/        # 后端服务 (SpringBoot + Java 17)
+├── frontend/                 # 前端 (React + TypeScript + Vite)
+├── sql/                     # 数据库 Schema & 种子数据
+│   ├── schema.sql               # 主库 Schema (诊断会话/Trace/审计/知识库)
+│   ├── monitor-schema.sql       # 监控库 Schema (慢查询/连接/日志/指标)
 │   └── seed-data.sql           # 模拟故障场景数据
-├── docs/                   # 设计文档
-└── e2e_test.py             # 端到端集成测试
+├── infrastructure/           # Kubernetes/Helm 部署配置
+├── docs/                    # 设计文档
+├── cli/                     # CLI 工具
+└── e2e_test.py              # 端到端集成测试
 ```
 
 ## 生产环境部署指南
@@ -28,7 +31,7 @@ AgentOps/
 
 ```bash
 git clone https://github.com/JustCod101/AgentOps.git
-cd AgentOps/agentops-server
+cd AgentOps
 ```
 
 创建 `.env` 文件:
